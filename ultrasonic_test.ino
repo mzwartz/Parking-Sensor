@@ -1,37 +1,59 @@
-// ---------------------------------------------------------------- //
-// Arduino Ultrasoninc Sensor HC-SR04
-// using arduino nano & AMTmega328P
-// Tested on 1 January 2022
-// Open serial monitor with Ctrl + Shift + M
-// ---------------------------------------------------------------- //
+// C++ code
 
-#define echoPin 2 // attach pin D2 Arduino to pin Echo of HC-SR04
-#define trigPin 3 //attach pin D3 Arduino to pin Trig of HC-SR04
 
-// defines variables
-long duration; // variable for the duration of sound wave travel
-int distance; // variable for the distance measurement
+int inches = 0;
 
-void setup() {
-  pinMode(trigPin, OUTPUT); // Sets the trigPin as an OUTPUT
-  pinMode(echoPin, INPUT); // Sets the echoPin as an INPUT
-  Serial.begin(9600); // // Serial Communication is starting with 9600 of baudrate speed
-  Serial.println("Ultrasonic Sensor HC-SR04 Test"); // print some text in Serial Monitor
-  }
-void loop() {
-  // Clears the trigPin condition
-  digitalWrite(trigPin, LOW);
+int cm = 0;
+
+long readDistance(int triggerPin, int echoPin)
+{
+  pinMode(triggerPin, OUTPUT);  // Clear the trigger
+  digitalWrite(triggerPin, LOW);
   delayMicroseconds(2);
-  // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
-  digitalWrite(trigPin, HIGH);
+  // Sets the trigger pin to HIGH state for 10 microseconds
+  digitalWrite(triggerPin, HIGH);
   delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-  // Reads the echoPin, returns the sound wave travel time in microseconds
-  duration = pulseIn(echoPin, HIGH);
-  // Calculating the distance
-  distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
-  // Displays the distance on the Serial Monitor
-  Serial.print("Distance: ");
-  Serial.print(distance);
-  Serial.println(" cm");
+  digitalWrite(triggerPin, LOW);
+  pinMode(echoPin, INPUT);
+  // Reads the echo pin, and returns the sound wave travel time in microseconds
+  return pulseIn(echoPin, HIGH);
+}
+
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(9, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode (5, OUTPUT);
+
+}
+
+void loop()
+{
+  // measure the ping time in cm
+  cm = 0.01723 * readDistance(3, 2);
+  // convert to inches by dividing by 2.54
+  inches = (cm / 2.54);
+  
+  if (inches < 24){
+    digitalWrite(9, HIGH);
+    digitalWrite(6, LOW);
+    digitalWrite(5, LOW);
+  }
+      else if (inches > 24 and inches < 48){
+        digitalWrite(9, LOW);
+        digitalWrite(6, HIGH);
+        digitalWrite(5, LOW);
+      }
+      else {
+        digitalWrite(9, LOW);
+        digitalWrite(6, LOW);
+        digitalWrite(5, HIGH);
+      }
+      
+      
+  Serial.print(inches);
+  Serial.print("in, ");
+  Serial.print(cm);
+  Serial.println("cm");
 }
